@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.android.patientonline.screen.devices.FragmentDevicesPage"
+    android:orientation="vertical">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:id="@+id/textview1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Список подключенных устройств" />
+
+    <Button
+        android:id="@+id/addNewDevice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableEnd="@android:drawable/ic_input_add"
+        android:drawableRight="@android:drawable/ic_input_add"
+        android:text="Добавить устройство" />
+
+</LinearLayout>

@@ -12,6 +12,10 @@
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="О приложении" />
+        <item
+            android:id="@+id/nav_devices"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Устройства" />
     </group>
 
     <item android:title="Communicate">

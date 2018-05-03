@@ -1,11 +1,13 @@
 package com.example.android.patientonline.screen.menu;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -19,6 +21,7 @@ import android.view.MenuItem;
 import com.example.android.patientonline.R;
 import com.example.android.patientonline.screen.about.FragmentAboutPage;
 import com.example.android.patientonline.screen.home.FragmentHomePage;
+import com.example.android.patientonline.screen.devices.FragmentDevicesPage;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -93,8 +96,8 @@ public class MainActivity extends AppCompatActivity
             fg = new FragmentHomePage();
         } else if (id == R.id.nav_slideshow) {
             fg = new FragmentAboutPage();
-        } else if (id == R.id.nav_share) {
-
+        } else if (id == R.id.nav_devices) {
+            fg = new FragmentDevicesPage();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
@@ -112,5 +115,9 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void onFragmentInteraction(Uri uri) {
+        Log.v("TEST", "onFragmentInteraction");
     }
 }
