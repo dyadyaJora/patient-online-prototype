@@ -30,7 +30,8 @@
         <activity android:name=".screen.devices.ActivityFindDevicePage" />
         <activity
             android:name=".screen.login.LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_login" />
+        <activity android:name=".screen.messages.MessagesDoctorActivity"></activity>
     </application>
 
 </manifest>
