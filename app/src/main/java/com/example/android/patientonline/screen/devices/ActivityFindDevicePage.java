@@ -3,10 +3,13 @@ package com.example.android.patientonline.screen.devices;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Pair;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.patientonline.R;
+import com.example.android.patientonline.data.DataBaseHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +57,8 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
     TextView tInfo;
     AlertDialog.Builder ad;
 
+    DataBaseHelper dbHelper;
+    SQLiteDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +94,8 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
         mReceiver = new SingBroadcastReceiver();
         IntentFilter ifilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         this.registerReceiver(mReceiver, ifilter);
+
+        dbHelper = new DataBaseHelper(this);
     }
 
     @Override
@@ -385,11 +393,49 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
                         sbprint = sb.substring(0, endOfLineIndex);
                         sb.delete(0, sb.length());
 
+                        String[] arr = sbprint.split(";", -1);
+                        String toastText = "";
+                        long y = 0;
+
+                        if (arr.length > 1) {
+                            db = dbHelper.getWritableDatabase();
+                            Cursor cur = db.query(DataBaseHelper.TABLE_DEVICES, null, "name = ?",
+                                    new String[]{arr[0]}, null, null, null);
+                            if (cur.getCount() == 0) {
+                                String mac = bluetoothSocket.getRemoteDevice().getAddress();
+                                String btName = bluetoothSocket.getRemoteDevice().getName();
+
+                                ContentValues cv = new ContentValues();
+                                cv.put(dbHelper.COL_NAME, arr[0]);
+                                cv.put(dbHelper.COL_DESCRIPTION, arr[1]);
+                                cv.put(dbHelper.COL_TYPE, arr[2]);
+                                cv.put(dbHelper.COL_FORMAT, arr[3]);
+                                cv.put(dbHelper.COL_BT_NAME, btName);
+                                cv.put(dbHelper.COL_MAC, mac);
+
+                                y = db.insert(dbHelper.TABLE_DEVICES, null, cv);
+                                toastText = "Новое устройство успешно добавлено";
+                            } else {
+                                toastText = "Ошибка - устройство уже подключено";
+                            }
+                            cur.close();
+                            db.close();
+                        }
+
+                        final String x = toastText;
+                        final String fName = arr[0];
+                        final long fId = y;
                         runOnUiThread(new Runnable() { // Вывод данных
 
                             @Override
                             public void run() {
+                                Toast.makeText(ActivityFindDevicePage.this, x, Toast.LENGTH_LONG).show();
 
+                                Intent intent = new Intent();
+                                intent.putExtra("name", fName);
+                                intent.putExtra("id", fId);
+                                setResult(RESULT_OK, intent);
+                                finish();
                                 // sbprint
                             }
                         });

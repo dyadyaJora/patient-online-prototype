@@ -3,22 +3,75 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.patientonline.screen.devices.FragmentDevicesPage"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context="com.example.android.patientonline.screen.devices.FragmentDevicesPage">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/textview1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Список подключенных устройств" />
 
-    <Button
-        android:id="@+id/addNewDevice"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:drawableEnd="@android:drawable/ic_input_add"
-        android:drawableRight="@android:drawable/ic_input_add"
-        android:text="Добавить устройство" />
+        android:layout_margin="10dp">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+
+            <TextView
+                android:id="@+id/noDevices"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="8dp"
+                android:text="нет устройств"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/addNewDevice" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:text="Список"
+                android:textColor="@color/colorPrimary"
+                android:textSize="25sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/addNewDevice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:drawableEnd="@android:drawable/ic_input_add"
+                android:drawableRight="@android:drawable/ic_input_add"
+                android:text="Добавить устройство"
+                android:textSize="12sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ListView
+                android:id="@+id/listDiveces"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/addNewDevice">
+
+            </ListView>
+
+        </android.support.constraint.ConstraintLayout>
+    </android.support.v7.widget.CardView>
 
 </LinearLayout>
