@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.LayoutInflater;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -63,6 +64,12 @@ public class FragmentDevicesPage extends Fragment implements View.OnClickListene
 
         db = dbHelper.getWritableDatabase();
         array = new ArrayList<>();
+
+        devicesAdapter = new SimpleAdapter(getContext(), array, android.R.layout.activity_list_item,
+                new String[] { "Name", "Icon"},
+                new int[] { android.R.id.text1, android.R.id.icon });
+        lv.setAdapter(devicesAdapter);
+
         Cursor cur = db.query(DataBaseHelper.TABLE_DEVICES, null, null, null, null, null, null);
         if (cur.getCount() == 0) {
             //ContentValues cv = new ContentValues();
@@ -80,10 +87,14 @@ public class FragmentDevicesPage extends Fragment implements View.OnClickListene
                 } while (cur.moveToNext());
             }
 
-            devicesAdapter = new SimpleAdapter(getContext(), array, android.R.layout.activity_list_item,
-                    new String[] { "Name", "Icon"},
-                    new int[] { android.R.id.text1, android.R.id.icon });
-            lv.setAdapter(devicesAdapter);
+            devicesAdapter.notifyDataSetChanged();
+            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Intent intent = new Intent(getActivity(), SettingsActivity.class);
+                    startActivity(intent);
+                }
+            });
         }
         cur.close();
         db.close();
@@ -103,16 +114,16 @@ public class FragmentDevicesPage extends Fragment implements View.OnClickListene
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == REQUEST_CODE_FIND_DEVICES){
 
-            if(resultCode == Activity.RESULT_OK) {
+            if(resultCode == Activity.RESULT_OK && data.hasExtra("name")) {
                 String str = data.getStringExtra("name");
                 map = new HashMap<>();
                 map.put("Name", str);
                 map.put("Icon", R.drawable.ic_menu_manage);
                 array.add(map);
                 devicesAdapter.notifyDataSetChanged();
+                noDev.setVisibility(View.INVISIBLE);
             }
         }
     }

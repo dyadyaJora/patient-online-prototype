@@ -25,7 +25,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.patientonline.R;
+import com.example.android.patientonline.data.BtHelper;
+import com.example.android.patientonline.data.ConnectingBtThread;
 import com.example.android.patientonline.data.DataBaseHelper;
+import com.example.android.patientonline.data.RunningBtThread;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,10 +50,9 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
     HashMap<String, String> map;
     SimpleAdapter pairedDeviceAdapter;
     ListView listViewPairedDevice;
-    public ConnectBtThread connectBtThread;
-    public InitBtThread initBtThread;
+    //public ConnectBtThread connectBtThread;
+    //public InitBtThread initBtThread;
     UUID myUUID;
-    StringBuilder sb = new StringBuilder();
 
     Button btnFindDev;
     ProgressBar pB;
@@ -200,8 +202,12 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
                                     Toast.LENGTH_LONG).show();
 
 
-                            connectBtThread = new ConnectBtThread(device2);
-                            connectBtThread.start();  // Запускаем поток для подключения Bluetooth
+                            //connectBtThread = new ConnectBtThread(device2);
+                            //connectBtThread.start();  // Запускаем поток для подключения Bluetooth
+
+                            ConnectBtCallback cb = new ConnectBtCallback();
+                            ConnectingBtThread thr = new ConnectingBtThread(device2, "new", ActivityFindDevicePage.this, cb);
+                            thr.start();
                         }
                     });
                     ad.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -258,132 +264,30 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
         }
     }
 
-    private class ConnectBtThread extends Thread { // Поток для коннекта с Bluetooth
-
-        private BluetoothSocket bluetoothSocket = null;
-
-        private ConnectBtThread(BluetoothDevice device) {
-
-            try {
-                bluetoothSocket = device.createRfcommSocketToServiceRecord(myUUID);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    private class ConnectBtCallback implements ConnectingBtThread.Callback {
 
         @Override
-        public void run() { // Коннект
-            boolean success = false;
-
-            try {
-                bluetoothSocket.connect();
-                success = true;
-            }
-
-            catch (IOException e) {
-                e.printStackTrace();
-
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        Toast.makeText(ActivityFindDevicePage.this, "Не возможно установить Bluetooth соедненение", Toast.LENGTH_LONG).show();
-                    }
-                });
-
-                try {
-                    bluetoothSocket.close();
-                }
-
-                catch (IOException e1) {
-
-                    e1.printStackTrace();
-                }
-            }
-
-            if(success) {  // Если законнектились, то init device
-
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        // диалог ожидания
-                        Toast.makeText(ActivityFindDevicePage.this, "Соединение успешно установлено", Toast.LENGTH_LONG).show();
-
-                    }
-                });
-
-                // ============== Начальная синхронизация ==========================================
-
-                initBtThread = new InitBtThread(bluetoothSocket);
-                initBtThread.start();
-                initBtThread.write("F".getBytes());
-
-                // =================================================================================
-                //this.cancel();
-            }
+        public void cb(String type) {
+            RunBtCallback cb = new RunBtCallback();
+            RunningBtThread thr = new RunningBtThread("new", ActivityFindDevicePage.this, cb);
+            thr.start();
+            thr.write("F".getBytes());
         }
+    }
 
-        public void cancel() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(ActivityFindDevicePage.this, "Closed - Bt Socket", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            try {
-                bluetoothSocket.close();
-            }
-
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    } // END ConnectBtThread:
-
-    private class InitBtThread extends Thread {
-        private final InputStream connectedInputStream;
-        private final OutputStream connectedOutputStream;
-        BluetoothSocket bluetoothSocket;
-
-        private String sbprint;
-
-        public InitBtThread(BluetoothSocket socket) {
-
-            InputStream in = null;
-            OutputStream out = null;
-
-            bluetoothSocket = socket;
-
-            try {
-                in = bluetoothSocket.getInputStream();
-                out = bluetoothSocket.getOutputStream();
-            }
-
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            connectedInputStream = in;
-            connectedOutputStream = out;
-        }
-
-        public void write(byte[] buffer) {
-            try {
-                connectedOutputStream.write(buffer);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    private class RunBtCallback implements RunningBtThread.Callback {
 
         @Override
-        public void run() {
+        public void dataProcessingCb(RunningBtThread thr, InputStream in) {
+
+            StringBuilder sb = new StringBuilder();
+            String sbprint;
+            boolean oldDev = false;
+            // do something
             while (true) {
                 try {
                     byte[] buffer = new byte[1];
-                    int bytes = connectedInputStream.read(buffer);
+                    int bytes = in.read(buffer);
                     String strIncom = new String(buffer, 0, bytes);
                     sb.append(strIncom); // собираем символы в строку
                     int endOfLineIndex = sb.indexOf("\r\n"); // определяем конец строки
@@ -402,8 +306,8 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
                             Cursor cur = db.query(DataBaseHelper.TABLE_DEVICES, null, "name = ?",
                                     new String[]{arr[0]}, null, null, null);
                             if (cur.getCount() == 0) {
-                                String mac = bluetoothSocket.getRemoteDevice().getAddress();
-                                String btName = bluetoothSocket.getRemoteDevice().getName();
+                                String mac = BtHelper.getSocket("new").getRemoteDevice().getAddress();
+                                String btName = BtHelper.getSocket("new").getRemoteDevice().getName();
 
                                 ContentValues cv = new ContentValues();
                                 cv.put(dbHelper.COL_NAME, arr[0]);
@@ -417,6 +321,7 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
                                 toastText = "Новое устройство успешно добавлено";
                             } else {
                                 toastText = "Ошибка - устройство уже подключено";
+                                oldDev = true;
                             }
                             cur.close();
                             db.close();
@@ -424,6 +329,7 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
 
                         final String x = toastText;
                         final String fName = arr[0];
+                        final boolean isOldDev = oldDev;
                         final long fId = y;
                         runOnUiThread(new Runnable() { // Вывод данных
 
@@ -432,8 +338,10 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
                                 Toast.makeText(ActivityFindDevicePage.this, x, Toast.LENGTH_LONG).show();
 
                                 Intent intent = new Intent();
-                                intent.putExtra("name", fName);
-                                intent.putExtra("id", fId);
+                                if (!isOldDev) {
+                                    intent.putExtra("name", fName);
+                                    intent.putExtra("id", fId);
+                                }
                                 setResult(RESULT_OK, intent);
                                 finish();
                                 // sbprint
@@ -445,24 +353,215 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
                     break;
                 }
             }
-            this.cancel();
-        }
-
-        public void cancel() {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(ActivityFindDevicePage.this, "Closed - Bt Socket", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            try {
-                bluetoothSocket.close();
-            }
-
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+            thr.cancel();
         }
     }
+//
+//    private class ConnectBtThread extends Thread { // Поток для коннекта с Bluetooth
+//
+//        private BluetoothSocket bluetoothSocket = null;
+//
+//        private ConnectBtThread(BluetoothDevice device) {
+//
+//            try {
+//                bluetoothSocket = device.createRfcommSocketToServiceRecord(myUUID);
+//            }
+//            catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        @Override
+//        public void run() { // Коннект
+//            boolean success = false;
+//
+//            try {
+//                bluetoothSocket.connect();
+//                success = true;
+//            }
+//
+//            catch (IOException e) {
+//                e.printStackTrace();
+//
+//                runOnUiThread(new Runnable() {
+//
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(ActivityFindDevicePage.this, "Не возможно установить Bluetooth соедненение", Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//
+//                try {
+//                    bluetoothSocket.close();
+//                }
+//
+//                catch (IOException e1) {
+//
+//                    e1.printStackTrace();
+//                }
+//            }
+//
+//            if(success) {  // Если законнектились, то init device
+//
+//                runOnUiThread(new Runnable() {
+//
+//                    @Override
+//                    public void run() {
+//                        // диалог ожидания
+//                        Toast.makeText(ActivityFindDevicePage.this, "Соединение успешно установлено", Toast.LENGTH_LONG).show();
+//
+//                    }
+//                });
+//
+//                // ============== Начальная синхронизация ==========================================
+//
+//                initBtThread = new InitBtThread(bluetoothSocket);
+//                initBtThread.start();
+//                initBtThread.write("F".getBytes());
+//
+//                // =================================================================================
+//                //this.cancel();
+//            }
+//        }
+//
+//        public void cancel() {
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Toast.makeText(ActivityFindDevicePage.this, "Closed - Bt Socket", Toast.LENGTH_LONG).show();
+//                }
+//            });
+//
+//            try {
+//                bluetoothSocket.close();
+//            }
+//
+//            catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    } // END ConnectBtThread:
+//
+//    private class InitBtThread extends Thread {
+//        private final InputStream connectedInputStream;
+//        private final OutputStream connectedOutputStream;
+//        BluetoothSocket bluetoothSocket;
+//
+//        private String sbprint;
+//
+//        public InitBtThread(BluetoothSocket socket) {
+//
+//            InputStream in = null;
+//            OutputStream out = null;
+//
+//            bluetoothSocket = socket;
+//
+//            try {
+//                in = bluetoothSocket.getInputStream();
+//                out = bluetoothSocket.getOutputStream();
+//            }
+//
+//            catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            connectedInputStream = in;
+//            connectedOutputStream = out;
+//        }
+//
+//        public void write(byte[] buffer) {
+//            try {
+//                connectedOutputStream.write(buffer);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        @Override
+//        public void run() {
+//            while (true) {
+//                try {
+//                    byte[] buffer = new byte[1];
+//                    int bytes = connectedInputStream.read(buffer);
+//                    String strIncom = new String(buffer, 0, bytes);
+//                    sb.append(strIncom); // собираем символы в строку
+//                    int endOfLineIndex = sb.indexOf("\r\n"); // определяем конец строки
+//
+//                    if (endOfLineIndex > 0) {
+//
+//                        sbprint = sb.substring(0, endOfLineIndex);
+//                        sb.delete(0, sb.length());
+//
+//                        String[] arr = sbprint.split(";", -1);
+//                        String toastText = "";
+//                        long y = 0;
+//
+//                        if (arr.length > 1) {
+//                            db = dbHelper.getWritableDatabase();
+//                            Cursor cur = db.query(DataBaseHelper.TABLE_DEVICES, null, "name = ?",
+//                                    new String[]{arr[0]}, null, null, null);
+//                            if (cur.getCount() == 0) {
+//                                String mac = bluetoothSocket.getRemoteDevice().getAddress();
+//                                String btName = bluetoothSocket.getRemoteDevice().getName();
+//
+//                                ContentValues cv = new ContentValues();
+//                                cv.put(dbHelper.COL_NAME, arr[0]);
+//                                cv.put(dbHelper.COL_DESCRIPTION, arr[1]);
+//                                cv.put(dbHelper.COL_TYPE, arr[2]);
+//                                cv.put(dbHelper.COL_FORMAT, arr[3]);
+//                                cv.put(dbHelper.COL_BT_NAME, btName);
+//                                cv.put(dbHelper.COL_MAC, mac);
+//
+//                                y = db.insert(dbHelper.TABLE_DEVICES, null, cv);
+//                                toastText = "Новое устройство успешно добавлено";
+//                            } else {
+//                                toastText = "Ошибка - устройство уже подключено";
+//                            }
+//                            cur.close();
+//                            db.close();
+//                        }
+//
+//                        final String x = toastText;
+//                        final String fName = arr[0];
+//                        final long fId = y;
+//                        runOnUiThread(new Runnable() { // Вывод данных
+//
+//                            @Override
+//                            public void run() {
+//                                Toast.makeText(ActivityFindDevicePage.this, x, Toast.LENGTH_LONG).show();
+//
+//                                Intent intent = new Intent();
+//                                intent.putExtra("name", fName);
+//                                intent.putExtra("id", fId);
+//                                setResult(RESULT_OK, intent);
+//                                finish();
+//                                // sbprint
+//                            }
+//                        });
+//                        break;
+//                    }
+//                } catch (IOException e) {
+//                    break;
+//                }
+//            }
+//            this.cancel();
+//        }
+//
+//        public void cancel() {
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Toast.makeText(ActivityFindDevicePage.this, "Closed - Bt Socket", Toast.LENGTH_LONG).show();
+//                }
+//            });
+//
+//            try {
+//                bluetoothSocket.close();
+//            }
+//
+//            catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 }

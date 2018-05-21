@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_menu_gallery"
             android:title="Главная" />
         <item
+            android:id="@+id/nav_mydata"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Мои данные" />
+        <item
             android:id="@+id/nav_slideshow"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="О приложении" />

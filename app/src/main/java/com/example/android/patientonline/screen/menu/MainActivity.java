@@ -1,5 +1,6 @@
 package com.example.android.patientonline.screen.menu;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -22,6 +23,7 @@ import com.example.android.patientonline.R;
 import com.example.android.patientonline.screen.about.FragmentAboutPage;
 import com.example.android.patientonline.screen.home.FragmentHomePage;
 import com.example.android.patientonline.screen.devices.FragmentDevicesPage;
+import com.example.android.patientonline.screen.mydata.FragmentMyData;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -98,8 +100,8 @@ public class MainActivity extends AppCompatActivity
             fg = new FragmentAboutPage();
         } else if (id == R.id.nav_devices) {
             fg = new FragmentDevicesPage();
-        } else if (id == R.id.nav_share) {
-
+        } else if (id == R.id.nav_mydata) {
+            fg = new FragmentMyData();
         } else if (id == R.id.nav_send) {
 
         }
@@ -119,5 +121,11 @@ public class MainActivity extends AppCompatActivity
 
     public void onFragmentInteraction(Uri uri) {
         Log.v("TEST", "onFragmentInteraction");
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode,resultCode,data);
     }
 }

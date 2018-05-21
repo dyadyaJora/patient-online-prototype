@@ -31,7 +31,16 @@
         <activity
             android:name=".screen.login.LoginActivity"
             android:label="@string/title_activity_login" />
-        <activity android:name=".screen.messages.MessagesDoctorActivity"></activity>
+        <activity android:name=".screen.messages.MessagesDoctorActivity" />
+        <activity
+            android:name=".screen.devices.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".screen.menu.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.android.patientonline.screen.menu.MainActivity" />
+        </activity>
+        <activity android:name=".screen.mydata.PulseActivity"></activity>
     </application>
 
 </manifest>
