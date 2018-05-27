@@ -18,6 +18,7 @@ public class RunningBtThread extends Thread {
 
     public interface Callback {
         void dataProcessingCb(RunningBtThread thr, InputStream in);
+        void closeCb();
     }
 
     Callback callback;
@@ -39,6 +40,7 @@ public class RunningBtThread extends Thread {
         }
 
         catch (IOException e) {
+            callback.closeCb();
             e.printStackTrace();
         }
 
@@ -50,6 +52,7 @@ public class RunningBtThread extends Thread {
         try {
             connectedOutputStream.write(buffer);
         } catch (IOException e) {
+            callback.closeCb();
             e.printStackTrace();
         }
     }
@@ -68,5 +71,6 @@ public class RunningBtThread extends Thread {
         });
 
         BtHelper.closeSocketConnection(type);
+        callback.closeCb();
     }
 }

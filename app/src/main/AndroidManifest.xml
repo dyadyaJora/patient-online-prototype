@@ -40,7 +40,20 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.android.patientonline.screen.menu.MainActivity" />
         </activity>
-        <activity android:name=".screen.mydata.PulseActivity"></activity>
+        <activity android:name=".screen.mydata.PulseActivity" />
+
+        <service
+            android:name=".service.BtDataService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".service.BtDataRunPulseService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".service.BtDataRunTempService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

@@ -273,6 +273,11 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
             thr.start();
             thr.write("F".getBytes());
         }
+
+        @Override
+        public void closeCb() {
+            // pass
+        }
     }
 
     private class RunBtCallback implements RunningBtThread.Callback {
@@ -355,6 +360,9 @@ public class ActivityFindDevicePage extends AppCompatActivity implements View.On
             }
             thr.cancel();
         }
+
+        @Override
+        public void closeCb() { }
     }
 //
 //    private class ConnectBtThread extends Thread { // Поток для коннекта с Bluetooth

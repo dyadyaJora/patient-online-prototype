@@ -13,11 +13,11 @@ public class ConnectingBtThread extends Thread {
 
     private BluetoothSocket bluetoothSocket = null;
     Activity someActivity;
-    UUID myUUID;
     String type;
 
     public interface Callback {
         void cb(String type);
+        void closeCb();
     }
 
     Callback callback;
@@ -54,6 +54,7 @@ public class ConnectingBtThread extends Thread {
             });
 
             BtHelper.closeSocketConnection(type);
+            callback.closeCb();
         }
 
         if(success) {  // Если законнектились, то init device
@@ -74,6 +75,8 @@ public class ConnectingBtThread extends Thread {
             callback.cb(type);
 
             // =================================================================================
+        } else {
+            callback.closeCb();
         }
     }
 
@@ -86,5 +89,6 @@ public class ConnectingBtThread extends Thread {
         });
 
         BtHelper.closeSocketConnection(type);
+        callback.closeCb();
     }
 }

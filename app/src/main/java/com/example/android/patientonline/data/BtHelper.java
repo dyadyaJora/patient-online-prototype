@@ -21,6 +21,10 @@ public class BtHelper {
         return btSockets.get(type);
     }
 
+    public static synchronized boolean checkSocket(String type) {
+        return btSockets.containsKey(type);
+    }
+
     public static synchronized void deleteSocket(String type) {
         btSockets.remove(type);
     }
