@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 
 import com.example.android.patientonline.R;
@@ -30,7 +31,8 @@ public abstract class BtDataService extends Service {
     public int NOTIFICATION_ID;
     public String NOTIFICATION_TEXT, NOTIFICATION_TITLE;
     private String type;
-    private static int startId;
+    protected static int startId;
+    public static long whenTime = 0;
     public static final int STATUS_FINISH = 200;
 
     ConnectingBtThread thr1;
@@ -67,6 +69,13 @@ public abstract class BtDataService extends Service {
         super.onDestroy();
 
         try {
+            thr2.write("S".getBytes());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
             thr1.cancel();
             thr1.stop();
         }
@@ -75,7 +84,6 @@ public abstract class BtDataService extends Service {
         }
 
         try {
-            thr2.write("S".getBytes());
             thr2.cancel();
             thr2.stop();
         }
@@ -111,13 +119,31 @@ public abstract class BtDataService extends Service {
         thr2.write("R".getBytes());
     }
 
-    public abstract void dataProcessing();
+    public abstract void dataProcessing(InputStream in);
 
-    private void updateActivities(HashMap data) {
-        // update notification
+    public abstract String updateNotificationText(int pulse);
+
+    protected void updateActivities(HashMap data) {
+        int pulse = (int) data.get("pulse");
+        NOTIFICATION_TEXT = updateNotificationText(pulse);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setUsesChronometer(true)
+                        .setWhen(whenTime)
+                        .setOngoing(true)
+                        .setContentTitle(NOTIFICATION_TITLE)
+                        .setContentText(NOTIFICATION_TEXT);
+
+        Notification notification = builder.build();
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFICATION_ID, notification);
+
+        //================================================
 
         for (Callback activity : activityList) {
-            activity.onTickCallback();
+            activity.onTickCallback(data);
         }
     }
 
@@ -144,16 +170,20 @@ public abstract class BtDataService extends Service {
 
         @Override
         public void dataProcessingCb(RunningBtThread thr, InputStream in) {
+            whenTime = System.currentTimeMillis();
+
             NotificationCompat.Builder builder =
                     new NotificationCompat.Builder(getApplicationContext())
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setWhen(whenTime)
+                            .setOngoing(true)
                             .setUsesChronometer(true)
                             .setContentTitle(NOTIFICATION_TITLE)
                             .setContentText(NOTIFICATION_TEXT);
 
             Notification notification = builder.build();
 
-            NotificationManager notificationManager =
-                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_ID, notification);
 
             // ====== зачем? ============
@@ -163,7 +193,7 @@ public abstract class BtDataService extends Service {
             // ==========================
 
             // ==================================================================
-            dataProcessing();
+            dataProcessing(in);
 
         }
 
@@ -186,6 +216,6 @@ public abstract class BtDataService extends Service {
 
     public interface Callback {
         void onStartCallback();
-        void onTickCallback();
+        void onTickCallback(HashMap data);
     }
 }
