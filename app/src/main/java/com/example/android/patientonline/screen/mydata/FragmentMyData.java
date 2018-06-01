@@ -33,7 +33,7 @@ public class FragmentMyData extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    RelativeLayout pulse;
+    RelativeLayout pulse, temperature;
 
     public FragmentMyData() {
         // Required empty public constructor
@@ -81,6 +81,15 @@ public class FragmentMyData extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(getActivity(), PulseActivity.class);
+                startActivity(i);
+            }
+        });
+
+        temperature = (RelativeLayout) getView().findViewById(R.id.layout_temperature);
+        temperature.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getActivity(), TemperatureActivity.class);
                 startActivity(i);
             }
         });

@@ -121,11 +121,11 @@ public abstract class BtDataService extends Service {
 
     public abstract void dataProcessing(InputStream in);
 
-    public abstract String updateNotificationText(int pulse);
+    public abstract String updateNotificationText(String main_val);
 
     protected void updateActivities(HashMap data) {
-        int pulse = (int) data.get("pulse");
-        NOTIFICATION_TEXT = updateNotificationText(pulse);
+        String main_val = data.get("main_val").toString();
+        NOTIFICATION_TEXT = updateNotificationText(main_val);
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(getApplicationContext())
                         .setSmallIcon(R.mipmap.ic_launcher)

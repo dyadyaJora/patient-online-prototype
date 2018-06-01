@@ -28,25 +28,23 @@ import com.example.android.patientonline.data.BtHelper;
 import com.example.android.patientonline.data.ConnectingBtThread;
 import com.example.android.patientonline.data.DataBaseHelper;
 import com.example.android.patientonline.data.RunningBtThread;
-import com.example.android.patientonline.service.BtDataRunPulseService;
+import com.example.android.patientonline.service.BtDataRunTempService;
 import com.example.android.patientonline.service.BtDataService;
-
-import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-public class PulseActivity extends AppCompatActivity implements View.OnClickListener, BtDataRunPulseService.Callback {
+public class TemperatureActivity extends AppCompatActivity implements View.OnClickListener, BtDataRunTempService.Callback {
 
     final int CODE_1 = 1;
     Button btnUp, btnGo;
     ProgressDialog pd;
-    TextView pulseText, tvDis;
+    TextView tempText, tvDis;
     View activePulse;
     Chronometer chPulse;
 
-    BtDataRunPulseService service;
+    BtDataRunTempService service;
     Intent serviceIntent;
     PendingIntent pi;
 
@@ -57,10 +55,10 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            Toast.makeText(PulseActivity.this, "onServiceConnected called", Toast.LENGTH_SHORT).show();
+            Toast.makeText(TemperatureActivity.this, "onServiceConnected called", Toast.LENGTH_SHORT).show();
 
-            BtDataRunPulseService.LocalBinder binder = (BtDataRunPulseService.LocalBinder) iBinder;
-            service = (BtDataRunPulseService) binder.getServiceInstance();
+            BtDataRunTempService.LocalBinder binder = (BtDataRunTempService.LocalBinder) iBinder;
+            service = (BtDataRunTempService) binder.getServiceInstance();
 
             // TODO: activity reaction
             btnGo.setText("Стоп");
@@ -69,8 +67,8 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            Toast.makeText(PulseActivity.this, "onServiceDisconnected called", Toast.LENGTH_SHORT).show();
-            BtDataRunPulseService.unregisterActivity(PulseActivity.this);
+            Toast.makeText(TemperatureActivity.this, "onServiceDisconnected called", Toast.LENGTH_SHORT).show();
+            BtDataRunTempService.unregisterActivity(TemperatureActivity.this);
 
             // TODO: activity reaction
             btnGo.setText("Запись");
@@ -86,20 +84,20 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pulse);
+        setContentView(R.layout.activity_temperature);
         setTitle("Данные");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        btnUp = (Button) findViewById(R.id.btnPulseUp);
+        btnUp = (Button) findViewById(R.id.btnTempUp);
         btnUp.setOnClickListener(this);
 
-        btnGo =  (Button) findViewById(R.id.btnPulseGo);
+        btnGo =  (Button) findViewById(R.id.btnTempGo);
         btnGo.setOnClickListener(this);
 
-        pulseText = (TextView) findViewById(R.id.tvPulseText);
+        tempText = (TextView) findViewById(R.id.tvTempText);
         tvDis = (TextView) findViewById(R.id.tvDisconnect);
-        chPulse = (Chronometer) findViewById(R.id.chronometer_pulse);
+        chPulse = (Chronometer) findViewById(R.id.chronometer_temp);
         chPulse.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             public void onChronometerTick(Chronometer cArg) {
                 long t = System.currentTimeMillis() - cArg.getBase();
@@ -107,7 +105,7 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
             }
         });
 
-        activePulse = findViewById(R.id.view_active_pulse);
+        activePulse = findViewById(R.id.view_active_temp);
         anim = AnimationUtils.loadAnimation(this, R.anim.opacity_pulse);
         anim2 = AnimationUtils.loadAnimation(this, R.anim.opacity_pusle_text);
 
@@ -136,12 +134,12 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
 
 
         pi = createPendingResult(CODE_1, new Intent(), 0);
-        serviceIntent = new Intent(PulseActivity.this, BtDataRunPulseService.class);
-        serviceIntent.putExtra("type", "pulse");
+        serviceIntent = new Intent(TemperatureActivity.this, BtDataRunTempService.class);
+        serviceIntent.putExtra("type", "temp");
         serviceIntent.putExtra("pintent", pi);
 
-        if (isMyServiceRunning(BtDataRunPulseService.class)) {
-            BtDataService.registerActivity(PulseActivity.this);
+        if (isMyServiceRunning(BtDataRunTempService.class)) {
+            BtDataService.registerActivity(TemperatureActivity.this);
             bindService(serviceIntent, connection, BIND_AUTO_CREATE);
             // btnUp.setEnabled(false);
             // btnGo.setText("Стоп");
@@ -154,7 +152,7 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
     protected void onDestroy() {
         super.onDestroy();
 
-        BtDataService.unregisterActivity(PulseActivity.this);
+        BtDataService.unregisterActivity(TemperatureActivity.this);
         try {
             unbindService(connection);
         }
@@ -172,11 +170,11 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
-            case R.id.btnPulseUp:
+            case R.id.btnTempUp:
                 getPulseUp();
                 break;
-            case R.id.btnPulseGo:
-                if (!isMyServiceRunning(BtDataRunPulseService.class)) {
+            case R.id.btnTempGo:
+                if (!isMyServiceRunning(BtDataRunTempService.class)) {
                     goGetPulse();
                 } else {
                     stopGetPulse();
@@ -187,10 +185,10 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
 
     public void getPulseUp() {
         pd.show();
-        if (!BtHelper.checkSocket("pulse")) {
+        if (!BtHelper.checkSocket("temp")) {
             connectBt();
-        } else if(!BtHelper.isConnected("pulse")) {
-            BtHelper.deleteSocket("pulse");
+        } else if(!BtHelper.isConnected("temp")) {
+            BtHelper.deleteSocket("temp");
             connectBt();
         }
         else {
@@ -199,14 +197,14 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
     }
 
     public void goGetPulse() {
-        BtDataRunPulseService.registerActivity(PulseActivity.this);
+        BtDataRunTempService.registerActivity(TemperatureActivity.this);
         startService(serviceIntent);
         bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
         pd.show();
     }
 
     public void stopGetPulse() {
-        BtDataRunPulseService.unregisterActivity(PulseActivity.this);
+        BtDataRunTempService.unregisterActivity(TemperatureActivity.this);
         unbindService(connection);
         stopService(serviceIntent);
 
@@ -241,7 +239,7 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
                     chTime = SystemClock.elapsedRealtime();
 
                 chPulse.setVisibility(View.VISIBLE);
-                chPulse.setBase(BtDataRunPulseService.whenTime);
+                chPulse.setBase(BtDataRunTempService.whenTime);
                 chPulse.start();
             }
         });
@@ -249,11 +247,11 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onTickCallback(HashMap data) {
-        final int pulse = (int) data.get("main_val");
+        final double temp = (double) data.get("main_val");
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                pulseText.setText(String.valueOf(pulse));
+                tempText.setText(String.valueOf(temp));
             }
         });
         // TODO: ======================================
@@ -263,7 +261,7 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == BtDataRunPulseService.STATUS_FINISH) {
+        if (resultCode == BtDataRunTempService.STATUS_FINISH) {
 
             btnGo.setText("Запись");
             btnUp.setEnabled(true);
@@ -298,14 +296,14 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
         String MAC = "00:0D:47:54:5D:93"; // TODO: remove hardcode to dbHelper
         BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(MAC);
 
-        ConnectingBtThread thr1 = new ConnectingBtThread(device, "pulse", PulseActivity.this, cb);
+        ConnectingBtThread thr1 = new ConnectingBtThread(device, "temp", TemperatureActivity.this, cb);
         thr1.start();
     }
 
     private void startRunning() {
         RunBtCallback cb = new RunBtCallback();
 
-        RunningBtThread thr2 = new RunningBtThread("pulse", PulseActivity.this, cb);
+        RunningBtThread thr2 = new RunningBtThread("temp", TemperatureActivity.this, cb);
         thr2.start();
         thr2.write("G".getBytes());
     }
@@ -314,6 +312,7 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void cb(String type) {
+
             startRunning();
 
             runOnUiThread(new Runnable() {
@@ -363,44 +362,13 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
 
                         String [] arr = sbprint.split(";", -1);
 
-                        if (arr.length == 4) {
-                            int pulseVal = Integer.parseInt(arr[0]);
-                            int valid = Integer.parseInt(arr[1]);
-                            int beep = Integer.parseInt(arr[2]);
-                            int analogVal = Integer.parseInt(arr[3]);
+                        double tempVal = Double.parseDouble(sbprint);
 
-                            if (valid == 1) {
+                        HashMap<String, Double> map = new HashMap();
+                        map.put("main_val", tempVal);
 
-                                if (pulseVal > 150)
-                                    pulseVal = 150;
-
-                                if (pulseVal < 50)
-                                    pulseVal = 50;
-
-                                HashMap<String, Integer> map = new HashMap();
-                                map.put("main_val", pulseVal);
-                                map.put("valid", valid);
-                                map.put("beep", beep);
-                                map.put("analog", analogVal);
-
-                                onTickCallback(map);
-
-                                // TODO: SAVE to db
-                            } else {
-
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        tvDis.setVisibility(View.VISIBLE);
-                                        tvDis.startAnimation(anim2);
-
-                                        activePulse.setVisibility(View.VISIBLE);
-                                        activePulse.startAnimation(anim2);
-
-                                    }
-                                });
-                            }
-                        }
+                        onTickCallback(map);
+                        // TODO: SAVE to db
                         break;
                     }
                 } catch (IOException e) {

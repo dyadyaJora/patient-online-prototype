@@ -46,7 +46,7 @@ public class BtDataRunPulseService extends BtDataService {
                                 pulseVal = 50;
 
                             HashMap<String, Integer> map = new HashMap();
-                            map.put("pulse", pulseVal);
+                            map.put("main_val", pulseVal);
                             map.put("valid", valid);
                             map.put("beep", beep);
                             map.put("analog", analogVal);
@@ -66,7 +66,7 @@ public class BtDataRunPulseService extends BtDataService {
     }
 
     @Override
-    public String updateNotificationText(int pulse) {
+    public String updateNotificationText(String pulse) {
         return "Значение пулса " + pulse + " уд/мин";
     }
 }
