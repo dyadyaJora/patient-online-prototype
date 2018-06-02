@@ -1,17 +1,34 @@
 package com.example.android.patientonline.screen.mydata;
 
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.patientonline.R;
+import com.example.android.patientonline.service.BtDataRunPulseService;
+import com.example.android.patientonline.service.BtDataRunTempService;
+import com.example.android.patientonline.service.BtDataService;
+
+import org.w3c.dom.Text;
+
+import java.util.HashMap;
+
+import static android.content.Context.ACTIVITY_SERVICE;
+import static android.content.Context.BIND_AUTO_CREATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,7 +38,7 @@ import com.example.android.patientonline.R;
  * Use the {@link FragmentMyData#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FragmentMyData extends Fragment {
+public class FragmentMyData extends Fragment implements  BtDataService.Callback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -34,6 +51,42 @@ public class FragmentMyData extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     RelativeLayout pulse, temperature;
+    TextView tvPulse, tvTemp;
+
+    BtDataRunTempService serviceTemp;
+    BtDataRunPulseService servicePulse;
+
+    private ServiceConnection cnctTemp = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Toast.makeText(getActivity(), "onServiceConnected called", Toast.LENGTH_SHORT).show();
+
+            BtDataRunTempService.LocalBinder binder = (BtDataRunTempService.LocalBinder) iBinder;
+            serviceTemp = (BtDataRunTempService) binder.getServiceInstance();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Toast.makeText(getActivity(), "onServiceDisconnected called", Toast.LENGTH_SHORT).show();
+            BtDataRunTempService.unregisterActivity(FragmentMyData.this);
+        }
+    };
+
+    private ServiceConnection cnctPulse = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Toast.makeText(getActivity(), "onServiceConnected called", Toast.LENGTH_SHORT).show();
+
+            BtDataRunPulseService.LocalBinder binder = (BtDataRunPulseService.LocalBinder) iBinder;
+            servicePulse = (BtDataRunPulseService) binder.getServiceInstance();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Toast.makeText(getActivity(), "onServiceDisconnected called", Toast.LENGTH_SHORT).show();
+            BtDataRunPulseService.unregisterActivity(FragmentMyData.this);
+        }
+    };
 
     public FragmentMyData() {
         // Required empty public constructor
@@ -93,7 +146,48 @@ public class FragmentMyData extends Fragment {
                 startActivity(i);
             }
         });
+
+        tvPulse = (TextView) getView().findViewById(R.id.text_value_8);
+        tvTemp = (TextView) getView().findViewById(R.id.text_value_10);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (isMyServiceRunning(BtDataRunPulseService.class)) {
+            BtDataRunPulseService.registerActivity(FragmentMyData.this);
+            getActivity().bindService(new Intent(getActivity(), BtDataRunPulseService.class), cnctPulse, BIND_AUTO_CREATE);
+        }
+
+        if (isMyServiceRunning(BtDataRunTempService.class)) {
+            BtDataRunTempService.registerActivity(FragmentMyData.this);
+            getActivity().bindService(new Intent(getActivity(), BtDataRunTempService.class), cnctTemp, BIND_AUTO_CREATE);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        try {
+            getActivity().unbindService(cnctPulse);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            getActivity().unbindService(cnctTemp);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        BtDataRunPulseService.unregisterActivity(FragmentMyData.this);
+        BtDataRunTempService.unregisterActivity(FragmentMyData.this);
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -117,6 +211,47 @@ public class FragmentMyData extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+
+        Activity x = FragmentMyData.this.getActivity();
+    }
+
+    @Override
+    public void onStartCallback() {
+        // pass
+    }
+
+    @Override
+    public void onTickCallback(HashMap data) {
+        final String value = data.get("main_val").toString();
+        int type = (int) data.get("type");
+
+        if (type == 1) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvPulse.setText(value + " уд/мин");
+                }
+            });
+        }
+
+        if (type == 2) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvTemp.setText(value + " °C");
+                }
+            });
+        }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getActivity().getSystemService(ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

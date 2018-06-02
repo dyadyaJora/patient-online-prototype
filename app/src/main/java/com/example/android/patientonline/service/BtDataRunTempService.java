@@ -33,8 +33,9 @@ public class BtDataRunTempService extends BtDataService {
 
                     double tempVal = Double.parseDouble(sbprint);
 
-                    HashMap<String, Double> map = new HashMap();
+                    HashMap<String, Object> map = new HashMap();
                     map.put("main_val", tempVal);
+                    map.put("type", 2);
 
                     updateActivities(map);
                 }

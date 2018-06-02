@@ -141,7 +141,7 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
         serviceIntent.putExtra("pintent", pi);
 
         if (isMyServiceRunning(BtDataRunPulseService.class)) {
-            BtDataService.registerActivity(PulseActivity.this);
+            BtDataRunPulseService.registerActivity(PulseActivity.this);
             bindService(serviceIntent, connection, BIND_AUTO_CREATE);
             // btnUp.setEnabled(false);
             // btnGo.setText("Стоп");
@@ -154,7 +154,7 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
     protected void onDestroy() {
         super.onDestroy();
 
-        BtDataService.unregisterActivity(PulseActivity.this);
+        BtDataRunPulseService.unregisterActivity(PulseActivity.this);
         try {
             unbindService(connection);
         }
@@ -382,6 +382,7 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
                                 map.put("valid", valid);
                                 map.put("beep", beep);
                                 map.put("analog", analogVal);
+                                map.put("type", 1);
 
                                 onTickCallback(map);
 

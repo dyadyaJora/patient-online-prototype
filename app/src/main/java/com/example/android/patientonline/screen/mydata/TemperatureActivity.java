@@ -364,8 +364,9 @@ public class TemperatureActivity extends AppCompatActivity implements View.OnCli
 
                         double tempVal = Double.parseDouble(sbprint);
 
-                        HashMap<String, Double> map = new HashMap();
+                        HashMap<String, Object> map = new HashMap();
                         map.put("main_val", tempVal);
+                        map.put("type", 2);
 
                         onTickCallback(map);
                         // TODO: SAVE to db

@@ -95,11 +95,11 @@ public abstract class BtDataService extends Service {
         notificationManager.cancel(NOTIFICATION_ID);
     }
 
-    public static void registerActivity(Activity a) {
-        activityList.add( (Callback) a);
+    public static void registerActivity(Callback a) {
+        activityList.add(a);
     }
 
-    public static void unregisterActivity(Activity a) {
+    public static void unregisterActivity(Callback a) {
         activityList.remove(a);
     }
 

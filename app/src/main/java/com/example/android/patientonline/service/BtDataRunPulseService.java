@@ -51,6 +51,8 @@ public class BtDataRunPulseService extends BtDataService {
                             map.put("beep", beep);
                             map.put("analog", analogVal);
 
+                            map.put("type", 1);
+
                             updateActivities(map);
                         } else {
 
