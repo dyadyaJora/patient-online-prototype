@@ -129,6 +129,7 @@ public class FragmentMyData extends Fragment implements  BtDataService.Callback 
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        getActivity().setTitle("Мои данные");
         pulse = (RelativeLayout) getView().findViewById(R.id.layout_pulse);
         pulse.setOnClickListener(new View.OnClickListener() {
             @Override

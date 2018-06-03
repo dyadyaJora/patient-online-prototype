@@ -38,40 +38,40 @@
                 android:layout_width="180dp"
                 android:layout_height="70dp"
                 android:text="Войти"
-                app:layout_constraintBottom_toTopOf="@+id/button2"
+                app:layout_constraintBottom_toTopOf="@+id/mydataBtn"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/mydataBtn"
                 android:layout_width="180dp"
                 android:layout_height="70dp"
                 android:text="Мои данные"
-                app:layout_constraintBottom_toTopOf="@+id/button3"
+                app:layout_constraintBottom_toTopOf="@+id/todoctorBtn"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/loginBtn" />
 
             <Button
-                android:id="@+id/button3"
+                android:id="@+id/todoctorBtn"
                 android:layout_width="180dp"
                 android:layout_height="70dp"
                 android:text="Запись к врачу"
-                app:layout_constraintBottom_toTopOf="@+id/button4"
+                app:layout_constraintBottom_toTopOf="@+id/sosBtn"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button2" />
+                app:layout_constraintTop_toBottomOf="@+id/mydataBtn" />
 
             <Button
-                android:id="@+id/button4"
+                android:id="@+id/sosBtn"
                 android:layout_width="180dp"
                 android:layout_height="70dp"
                 android:background="@color/colorAccent"
                 android:text="SOS"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button3" />
+                app:layout_constraintTop_toBottomOf="@+id/todoctorBtn" />
         </LinearLayout>
     </ScrollView>
 </android.support.constraint.ConstraintLayout>

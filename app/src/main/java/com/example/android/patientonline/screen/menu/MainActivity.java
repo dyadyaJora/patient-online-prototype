@@ -23,6 +23,7 @@ import com.example.android.patientonline.R;
 import com.example.android.patientonline.screen.about.FragmentAboutPage;
 import com.example.android.patientonline.screen.home.FragmentHomePage;
 import com.example.android.patientonline.screen.devices.FragmentDevicesPage;
+import com.example.android.patientonline.screen.messages.MessagesDoctorActivity;
 import com.example.android.patientonline.screen.mydata.FragmentMyData;
 
 public class MainActivity extends AppCompatActivity
@@ -39,8 +40,10 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
+                Intent i = new Intent(MainActivity.this, MessagesDoctorActivity.class);
+                startActivity(i);
             }
         });
 
@@ -94,14 +97,17 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_share) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_home) {
             fg = new FragmentHomePage();
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_about) {
             fg = new FragmentAboutPage();
         } else if (id == R.id.nav_devices) {
             fg = new FragmentDevicesPage();
         } else if (id == R.id.nav_mydata) {
             fg = new FragmentMyData();
+        } else if (id == R.id.nav_notify) {
+            Intent i = new Intent(MainActivity.this, MessagesDoctorActivity.class);
+            startActivity(i);
         } else if (id == R.id.nav_send) {
 
         }
