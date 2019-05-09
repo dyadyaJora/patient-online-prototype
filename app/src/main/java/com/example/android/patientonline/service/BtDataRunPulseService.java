@@ -38,25 +38,21 @@ public class BtDataRunPulseService extends BtDataService {
                         int beep = Integer.parseInt(arr[2]);
                         int analogVal = Integer.parseInt(arr[3]);
 
-                        if (valid == 1) {
-                            if (pulseVal > 150)
-                                pulseVal = 150;
+                        if (pulseVal > 150)
+                            pulseVal = 150;
 
-                            if (pulseVal < 50)
-                                pulseVal = 50;
+                        if (pulseVal < 50)
+                            pulseVal = 50;
 
-                            HashMap<String, Integer> map = new HashMap();
-                            map.put("main_val", pulseVal);
-                            map.put("valid", valid);
-                            map.put("beep", beep);
-                            map.put("analog", analogVal);
+                        HashMap<String, Integer> map = new HashMap();
+                        map.put("main_val", pulseVal);
+                        map.put("valid", valid);
+                        map.put("beep", beep);
+                        map.put("analog", analogVal);
 
-                            map.put("type", 1);
+                        map.put("type", 1);
 
-                            updateActivities(map);
-                        } else {
-
-                        }
+                        updateActivities(map);
                     }
                 }
             } catch (IOException e) {

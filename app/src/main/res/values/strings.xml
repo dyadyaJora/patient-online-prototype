@@ -51,16 +51,14 @@
     </string-array>
 
     <!-- Example settings for Data & Sync -->
-    <string name="pref_header_data_sync">Data &amp; sync</string>
+    <string name="pref_header_data_sync">Мой профиль</string>
 
-    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string name="pref_title_sync_frequency">Группа крови</string>
     <string-array name="pref_sync_frequency_titles">
-        <item>15 minutes</item>
-        <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
-        <item>6 hours</item>
-        <item>Never</item>
+        <item>Первая, O(I)</item>
+        <item>Вторая, A(II)</item>
+        <item>Третья, B(III)</item>
+        <item>Четвертая, AB(IV)</item>
     </string-array>
     <string-array name="pref_sync_frequency_values">
         <item>15</item>

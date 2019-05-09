@@ -5,7 +5,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -55,7 +56,8 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".screen.mydata.TemperatureActivity"></activity>
+        <activity android:name=".screen.mydata.TemperatureActivity" />
+        <activity android:name=".screen.mydata.EKGActivity"></activity>
     </application>
 
 </manifest>

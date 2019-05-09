@@ -249,13 +249,17 @@ public class PulseActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onTickCallback(HashMap data) {
-        final int pulse = (int) data.get("main_val");
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                pulseText.setText(String.valueOf(pulse));
-            }
-        });
+        int valid = (int) data.get("valid");
+
+        if (valid == 1) {
+            final int pulse = (int) data.get("main_val");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    pulseText.setText(String.valueOf(pulse));
+                }
+            });
+        }
         // TODO: ======================================
     }
 

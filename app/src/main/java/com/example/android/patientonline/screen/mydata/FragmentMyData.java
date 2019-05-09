@@ -50,7 +50,7 @@ public class FragmentMyData extends Fragment implements  BtDataService.Callback 
 
     private OnFragmentInteractionListener mListener;
 
-    RelativeLayout pulse, temperature;
+    RelativeLayout pulse, temperature, ekg;
     TextView tvPulse, tvTemp;
 
     BtDataRunTempService serviceTemp;
@@ -144,6 +144,15 @@ public class FragmentMyData extends Fragment implements  BtDataService.Callback 
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(getActivity(), TemperatureActivity.class);
+                startActivity(i);
+            }
+        });
+
+        ekg = (RelativeLayout) getView().findViewById(R.id.layout_ekg);
+        ekg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getActivity(), EKGActivity.class);
                 startActivity(i);
             }
         });
